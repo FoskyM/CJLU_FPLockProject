@@ -62,6 +62,16 @@
         \xE8\xAE\xBE\xE7\xBD\xAE\xE5\xAF\x86\xE7\xA0\x81
       </a>
     </div>
+    <div><h2>NFC</h2></div>
+    <div>
+      <b>\xE8\xBE\x93\xE5\x85\xA5\xE5\xAD\xA6\xE5\x8F\xB7:</b>
+      <input id="stuid" type="text" />
+    </div>
+    <div>
+      <a class="btn" onclick="sstuid()" id="sstuid">
+        \xE4\xBF\x9D\xE5\xAD\x98
+      </a>
+    </div>
     <div><h2>\xE5\x85\xB6\xE4\xBB\x96</h2></div>
     <div>
       <a class="btn" onclick="op()" id="op">\xE5\xBC\x80\xE9\x97\xA8</a>
@@ -166,6 +176,14 @@
         fetch("/setpw", {
           method: "POST",
           body: i("clp"),
+        })
+          .then((t) => t.text())
+          .then(alert);
+      };
+      var sstuid = (e) => {
+        fetch("/sstuid", {
+          method: "POST",
+          body: i("stuid"),
         })
           .then((t) => t.text())
           .then(alert);

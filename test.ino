@@ -4,6 +4,7 @@
 #include "./src/modules/finger/finger.h"
 #include "./src/modules/finger_register/finger_register.h"
 #include "./src/modules/id/id.h"
+#include "./src/modules/nfc/nfc.h"
 #include "./src/modules/network/network.h"
 #include "./src/modules/network/networkConfigHandler.h"
 #include "./src/modules/preferences/preferences.h"
@@ -18,6 +19,9 @@ int enterConfigSecondRest = 0, enterConfigHit = 0, enterConfigTotal = 0;
 bool inScan = false;
 int scanCoolDown = 0;
 
+bool NFC_inScan = false;
+int NFC_scanCoolDown = 0;
+
 void api::openDoor() {
     scanCoolDown = 100;
     finger::CMD_setLed(finger::LED_MODE_ON, finger::LED_COLOR_GREEN, 0, 0, 0);
@@ -30,6 +34,7 @@ void setup() {
     preferences::init();
     ID::init();
     finger::init();
+    nfc::init();
     door::init();
     sleep(2);
     networkConfigHandler::init();
@@ -66,6 +71,24 @@ void loop() {
     }
     // 非网络配置模式
     else if (!networkConfigHandler::isConfigureMode) {
+        // NFC
+        if (!NFC_inScan && NFC_scanCoolDown == 0 && nfc::canRead()) {
+            NFC_inScan = true;
+        }
+        if (NFC_scanCoolDown > 0) {
+            NFC_scanCoolDown--;
+            if (NFC_scanCoolDown == 0) { }
+        }
+        if (NFC_inScan) {
+            if (nfc::matchStudentID()) {
+                api::openDoor();
+                NFC_scanCoolDown = 100;
+            } else {
+                NFC_scanCoolDown = 20;
+            }
+            NFC_inScan = false;
+        }
+
         // 非冷却，非识别中，检测到手指，发送识别，蓝色呼吸灯
         if (!inScan && scanCoolDown == 0 && isFingerOn.ok() && isFingerOn.result) {
             inScan = true;

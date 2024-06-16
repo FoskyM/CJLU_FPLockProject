@@ -187,6 +187,9 @@ String networkConfigHandler::response(data_parser::Result result, Type sourceTyp
                 return responseGenerator::getHTTPResponse("{\"finish\":false,\"result\":\"starting...\"}");
             }
         }
+    } else if (query == "setstuid") {
+        preferences::set("student_id", result.data);
+        return responseGenerator::getHTTPResponse("ok");
     } else if (query == "setpw") {
         ID::setPassword(result.data);
         return responseGenerator::getHTTPResponse("ok");
