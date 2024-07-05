@@ -5,6 +5,7 @@
 #include "../finger_register/finger_register.h"
 #include "../id/id.h"
 #include "../preferences/preferences.h"
+#include "../nfc/nfc.h"
 // #define NET_SCAN_ASYNC
 bool networkConfigHandler::isConfigureMode = false;
 data_parser::Parser networkConfigHandler::parser[networkConfigHandler::maxClients];
@@ -187,9 +188,19 @@ String networkConfigHandler::response(data_parser::Result result, Type sourceTyp
                 return responseGenerator::getHTTPResponse("{\"finish\":false,\"result\":\"starting...\"}");
             }
         }
-    } else if (query == "setstuid") {
+    } else if (query == "rd") {
+        if (!nfc::canRead()) {
+            if (!nfc::loaded) {
+                return responseGenerator::getHTTPResponse("no_nfc");
+            }
+            return responseGenerator::getHTTPResponse("read fail");
+        }
+        return responseGenerator::getHTTPResponse(String(nfc::getStudentID()));
+    } else if (query == "set_stu_id_value") {
         preferences::set("student_id", result.data);
         return responseGenerator::getHTTPResponse("ok");
+    } else if (query == "stu_id_value") {
+        return responseGenerator::getHTTPResponse(preferences::get("student_id"));
     } else if (query == "setpw") {
         ID::setPassword(result.data);
         return responseGenerator::getHTTPResponse("ok");
