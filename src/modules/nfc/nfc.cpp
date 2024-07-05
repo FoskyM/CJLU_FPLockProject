@@ -1,6 +1,12 @@
 #include "nfc.h"
 #include "../preferences/preferences.h"
 
+PN532_I2C pn532_I2C(Wire);
+PN532 NFC_Reader(pn532_I2C);
+
+uint32_t nfc::student_id[50];
+bool nfc::loaded = false;
+
 bool nfc::init()
 {
     uint32_t versiondata = NFC_Reader.getFirmwareVersion();
@@ -9,6 +15,9 @@ bool nfc::init()
 
     NFC_Reader.setPassiveActivationRetries(0xFF);
     NFC_Reader.SAMConfig();
+
+    nfc::loadStudentID();
+    nfc::loaded = true;
 
     return true;
 }
@@ -90,3 +99,33 @@ bool nfc::canRead()
 
     return success;
 }
+
+// bool nfc::matchConfigMode()
+// {
+//     uint8_t success;
+//     uint8_t uid[] = {0, 0, 0, 0, 0, 0, 0};
+//     uint8_t uidLength;
+//     uint8_t keya[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+//     uint8_t block = 4;
+//     uint8_t data[16];
+
+//     success = NFC_Reader.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength);
+
+//     if (success)
+//     {
+//         success = NFC_Reader.mifareclassic_AuthenticateBlock(uid, uidLength, 4, 0, keya);
+//         if (success)
+//         {
+//             success = NFC_Reader.mifareclassic_ReadDataBlock(block, data);
+//             if (success)
+//             {
+//                 if (data[0] == 0x03 && data[1] == 0x01)
+//                 {
+//                     return true;
+//                 }
+//             }
+//         }
+//     }
+
+//     return false;
+// }
